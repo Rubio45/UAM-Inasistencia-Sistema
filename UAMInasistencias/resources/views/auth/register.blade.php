@@ -1,52 +1,103 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Perfil - UAM</title>
+    <link rel="icon" href="{{ asset('images/uam-logo.png') }}" type="image/x-icon">
+    <meta name="description" content="Crear perfil en el sistema de inasistencias de la Universidad Americana.">
+    <meta name="keywords" content="UAM, inasistencias, universidad, alumnos, profesores, gestión">
+    <meta name="author" content="Scrum masters">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        uam: '#009DA9'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-uam min-h-screen flex items-center justify-center">
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+    <div class="bg-white w-full max-w-md rounded-lg shadow-lg p-8 relative">
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+        <!-- Icono de salir -->
+        <a href="{{ route('login') }}" class="absolute top-4 right-4 text-gray-600 hover:text-uam text-lg">
+            <i class="fas fa-arrow-right-from-bracket"></i>
+        </a>
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
+        <!-- Título -->
+        <h2 class="text-xl font-semibold text-gray-800 mb-6">CREAR PERFIL</h2>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+        <form method="POST" action="{{ route('register') }}" class="space-y-4">
+            @csrf
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+            <!-- NOMBRE -->
+            <div>
+                <label class="text-sm text-gray-700 block">NOMBRES</label>
+                <input type="text" name="name" required
+                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam">
+            </div>
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
+            <!-- APELLIDO -->
+            <div>
+                <label class="text-sm text-gray-700 block">APELLIDOS</label>
+                <input type="text" name="apellido" required
+                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam">
+            </div>
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
+            <!-- CIF -->
+            <div>
+                <label class="text-sm text-gray-700 block">CIF</label>
+                <input type="text" name="cif" required
+                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam">
+            </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
+            <!-- CARRERA -->
+            <div>
+                <label class="text-sm text-gray-700 block">CARRERA</label>
+                <input type="text" name="carrera" required
+                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam">
+            </div>
 
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+            <!-- CORREO -->
+            <div>
+                <label class="text-sm text-gray-700 block">CORREO</label>
+                <input type="email" name="email" required
+                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam">
+            </div>
+
+            <!-- PIN (password) -->
+            <div>
+                <label class="text-sm text-gray-700 block">CONTRASEÑA</label>
+                <input type="password" name="password" required
+                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam">
+            </div>
+
+            <!-- Confirmación de PIN -->
+            <div>
+                <label class="text-sm text-gray-700 block">CONFIRMAR CONTRASEÑA</label>
+                <input type="password" name="password_confirmation" required
+                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam">
+            </div>
+
+            <!-- Botón -->
+            <div class="flex justify-end">
+                <button type="submit"
+                    class="bg-uam text-white text-sm px-4 py-2 rounded hover:bg-cyan-800 transition">
+                    CREAR
+                </button>
+            </div>
+        </form>
+
+    </div>
+
+    <!-- FontAwesome for icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
+</body>
+</html>

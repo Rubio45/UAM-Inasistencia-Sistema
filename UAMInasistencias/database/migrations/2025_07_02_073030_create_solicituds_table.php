@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('profesor_id')->nullable();
+            $table->unsignedBigInteger('secretaria_id')->nullable();
             $table->string('comentario');
             $table->string('estado')->default('Pendiente');
             $table->string('evidencia')->nullable();
@@ -22,9 +24,12 @@ return new class extends Migration
             $table->date('fechaAusencia');
             $table->string('resolucion')->nullable();
             $table->string('tipoAusencia');
-
+            $table->unsignedBigInteger('asignatura_id')->nullable();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('profesor_id')->references('id')->on('profesores')->onDelete('set null');
+            $table->foreign('secretaria_id')->references('id')->on('secretaria_academicas')->onDelete('set null');
+            $table->foreign('asignatura_id')->references('id')->on('asignaturas')->onDelete('set null');
         });
     }
 

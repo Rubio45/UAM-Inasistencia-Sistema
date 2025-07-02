@@ -37,46 +37,75 @@
         <form method="POST" action="{{ route('register') }}" class="space-y-4">
             @csrf
 
+            <!-- Mostrar errores de validación -->
+            @if ($errors->any())
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    <ul class="list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <!-- NOMBRE -->
             <div>
                 <label class="text-sm text-gray-700 block">NOMBRES</label>
-                <input type="text" name="name" required
-                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam">
+                <input type="text" name="name" value="{{ old('name') }}" required
+                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam @error('name') border-red-500 @enderror">
+                @error('name')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- APELLIDO -->
             <div>
                 <label class="text-sm text-gray-700 block">APELLIDOS</label>
-                <input type="text" name="apellido" required
-                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam">
+                <input type="text" name="apellido" value="{{ old('apellido') }}" required
+                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam @error('apellido') border-red-500 @enderror">
+                @error('apellido')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- CIF -->
             <div>
                 <label class="text-sm text-gray-700 block">CIF</label>
-                <input type="text" name="cif" required
-                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam">
+                <input type="text" name="cif" value="{{ old('cif') }}" required
+                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam @error('cif') border-red-500 @enderror">
+                @error('cif')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- CARRERA -->
             <div>
                 <label class="text-sm text-gray-700 block">CARRERA</label>
-                <input type="text" name="carrera" required
-                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam">
+                <input type="text" name="carrera" value="{{ old('carrera') }}" required
+                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam @error('carrera') border-red-500 @enderror">
+                @error('carrera')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- CORREO -->
             <div>
                 <label class="text-sm text-gray-700 block">CORREO</label>
-                <input type="email" name="email" required
-                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam">
+                <input type="email" name="email" value="{{ old('email') }}" required
+                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam @error('email') border-red-500 @enderror">
+                @error('email')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- PIN (password) -->
             <div>
                 <label class="text-sm text-gray-700 block">CONTRASEÑA</label>
                 <input type="password" name="password" required
-                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam">
+                    class="w-full mt-1 p-2 rounded bg-gray-200 text-gray-800 outline-none focus:ring-2 focus:ring-uam @error('password') border-red-500 @enderror">
+                @error('password')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Confirmación de PIN -->

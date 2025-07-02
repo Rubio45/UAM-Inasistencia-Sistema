@@ -9,7 +9,17 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn(['apellido', 'cif', 'carrera']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('apellido')->after('name');
@@ -17,12 +27,4 @@ return new class extends Migration
             $table->string('carrera')->after('cif');
         });
     }
-    
-    public function down()
-    {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['apellido', 'cif', 'carrera']);
-        });
-    }
-
 };

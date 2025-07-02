@@ -27,7 +27,7 @@ class Estudiante extends Model
      */
     public function solicitudes()
     {
-        return $this->hasMany(Solicitud::class);
+        return $this->hasMany(Solicitud::class, 'user_id', 'user_id');
     }
 
     /**

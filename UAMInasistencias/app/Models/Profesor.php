@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Profesor extends Model
 {
+    protected $table = 'profesores';
+
     protected $fillable = [
         'user_id',
         'apellido',
@@ -36,5 +38,10 @@ class Profesor extends Model
     public function getNombreCompletoAttribute(): string
     {
         return $this->user->name . ' ' . $this->apellido;
+    }
+
+    public function asignaturas()
+    {
+        return $this->hasMany(Asignatura::class);
     }
 }

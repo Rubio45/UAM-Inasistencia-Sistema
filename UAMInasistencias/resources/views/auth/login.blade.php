@@ -83,6 +83,17 @@
             <a href="{{ route('password.request') }}" class="text-uam hover:underline">¿Olvidaste tu contraseña?</a>
         </div>
 
+        <!-- Enlace de retorno -->
+        <div class="text-center mt-4">
+            <a href="{{ route('welcome') }}"
+               class="inline-flex items-center justify-center w-full px-4 py-2 bg-cyan-50 border border-cyan-700 text-cyan-800 font-semibold rounded-lg hover:bg-cyan-100 hover:text-cyan-900 transition-colors duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Volver a la página principal
+            </a>
+        </div>
+
     </div>
 
 </body>

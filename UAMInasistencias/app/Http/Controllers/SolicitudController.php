@@ -14,20 +14,48 @@ class SolicitudController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // Mostrar solicitudes según el rol
         $user = Auth::user();
+        
         if ($user->isEstudiante()) {
-            $solicitudes = $user->estudiante->solicitudes()->latest()->get();
+            $query = $user->estudiante->solicitudes();
         } elseif ($user->isProfesor()) {
-            $solicitudes = Solicitud::where('profesor_id', $user->profesor->id)->latest()->get();
+            $query = Solicitud::where('profesor_id', $user->profesor->id);
         } elseif ($user->isSecretariaAcademica()) {
-            $solicitudes = Solicitud::where('secretaria_id', $user->secretariaAcademica->id)->latest()->get();
+            $query = Solicitud::where('secretaria_id', $user->secretariaAcademica->id);
         } else {
-            $solicitudes = collect();
+            $query = Solicitud::query();
         }
-        return view('solicitudes.index', compact('solicitudes'));
+
+        // Aplicar filtros
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        if ($request->filled('fecha_desde')) {
+            $query->where('fechaAusencia', '>=', $request->fecha_desde);
+        }
+
+        if ($request->filled('fecha_hasta')) {
+            $query->where('fechaAusencia', '<=', $request->fecha_hasta);
+        }
+
+        if ($request->filled('tipo_ausencia')) {
+            $query->where('tipoAusencia', $request->tipo_ausencia);
+        }
+
+        // Ordenar por fecha de ausencia (más reciente primero)
+        $solicitudes = $query->with(['asignatura', 'profesor.user', 'estudiante'])
+                            ->orderBy('fechaAusencia', 'desc')
+                            ->get();
+
+        // Obtener opciones para los filtros
+        $estados = ['Pendiente', 'Aprobada', 'Rechazada'];
+        $tiposAusencia = ['Enfermedad', 'Emergencia Familiar', 'Problemas de Transporte', 'Otro'];
+
+        return view('solicitudes.index', compact('solicitudes', 'estados', 'tiposAusencia'));
     }
 
     /**
@@ -53,7 +81,7 @@ class SolicitudController extends Controller
         $estudiante = $user->estudiante;
         $data = $request->validate([
             'comentario' => 'required|string',
-            'evidencia' => 'nullable|file|mimes:pdf,jpg,jpeg,png,gif,webp',
+            'evidencias.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png,gif,webp|max:10240', // Máximo 10MB por archivo
             'fechaAusencia' => 'required|date',
             'tipoAusencia' => 'required|string',
             'profesor_id' => 'required|exists:profesores,id',
@@ -61,10 +89,18 @@ class SolicitudController extends Controller
         ]);
         $data['user_id'] = $user->id;
         $data['fechaSolicitud'] = now()->toDateString();
-        // Guardar archivo si se subió
-        if ($request->hasFile('evidencia')) {
-            $data['evidencia'] = $request->file('evidencia')->store('evidencias', 'public');
+        
+        // Guardar archivos de evidencia
+        $evidencias = [];
+        if ($request->hasFile('evidencias')) {
+            foreach ($request->file('evidencias') as $archivo) {
+                if ($archivo->isValid()) {
+                    $evidencias[] = $archivo->store('evidencias', 'public');
+                }
+            }
         }
+        $data['evidencia'] = $evidencias;
+        
         $solicitud = $estudiante->solicitudes()->create($data);
         return redirect()->route('solicitudes.index')->with('success', 'Solicitud creada correctamente.');
     }
@@ -82,6 +118,13 @@ class SolicitudController extends Controller
      */
     public function edit(Solicitud $solicitud)
     {
+        // Verificar que el usuario autenticado sea el propietario de la solicitud
+        if (Auth::id() !== $solicitud->user_id) {
+            abort(403, 'No tienes permisos para editar esta solicitud.');
+        }
+        if (strtolower($solicitud->estado) !== 'pendiente') {
+            return redirect()->route('solicitudes.index')->with('error', 'Solo puedes editar solicitudes pendientes.');
+        }
         return view('solicitudes.edit', compact('solicitud'));
     }
 
@@ -90,15 +133,63 @@ class SolicitudController extends Controller
      */
     public function update(Request $request, Solicitud $solicitud)
     {
-        $data = $request->validate([
-            'comentario' => 'required|string',
-            'evidencia' => 'nullable|string',
-            'fechaSolicitud' => 'required|date',
-            'fechaAusencia' => 'required|date',
-            'tipoAusencia' => 'required|string',
-            'estado' => 'required|string',
-            'resolucion' => 'nullable|string',
-        ]);
+        if (Auth::id() !== $solicitud->user_id) {
+            abort(403, 'No tienes permisos para editar esta solicitud.');
+        }
+        if (strtolower($solicitud->estado) !== 'pendiente') {
+            return redirect()->route('solicitudes.index')->with('error', 'Solo puedes editar solicitudes pendientes.');
+        }
+        
+        $user = Auth::user();
+        $data = [];
+        
+        // Si es estudiante, puede editar campos simples incluyendo profesor y asignatura
+        if ($user->isEstudiante()) {
+            $data = $request->validate([
+                'comentario' => 'required|string',
+                'evidencias.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png,gif,webp|max:10240',
+                'fechaAusencia' => 'required|date',
+                'tipoAusencia' => 'required|string',
+                'profesor_id' => 'required|exists:profesores,id',
+                'asignatura_id' => 'required|exists:asignaturas,id',
+            ]);
+            
+            // Manejar archivos de evidencia
+            if ($request->hasFile('evidencias')) {
+                $evidencias = $solicitud->evidencias;
+                foreach ($request->file('evidencias') as $archivo) {
+                    if ($archivo->isValid()) {
+                        $evidencias[] = $archivo->store('evidencias', 'public');
+                    }
+                }
+                $data['evidencia'] = $evidencias;
+            }
+        } else {
+            // Para otros roles (profesor, secretaria) permitir edición completa
+            $data = $request->validate([
+                'comentario' => 'required|string',
+                'evidencias.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png,gif,webp|max:10240',
+                'fechaSolicitud' => 'required|date',
+                'fechaAusencia' => 'required|date',
+                'tipoAusencia' => 'required|string',
+                'estado' => 'required|string',
+                'resolucion' => 'nullable|string',
+                'profesor_id' => 'required|exists:profesores,id',
+                'asignatura_id' => 'required|exists:asignaturas,id',
+            ]);
+            
+            // Manejar archivos de evidencia
+            if ($request->hasFile('evidencias')) {
+                $evidencias = $solicitud->evidencias;
+                foreach ($request->file('evidencias') as $archivo) {
+                    if ($archivo->isValid()) {
+                        $evidencias[] = $archivo->store('evidencias', 'public');
+                    }
+                }
+                $data['evidencia'] = $evidencias;
+            }
+        }
+        
         $solicitud->update($data);
         return redirect()->route('solicitudes.index')->with('success', 'Solicitud actualizada correctamente.');
     }
@@ -110,5 +201,20 @@ class SolicitudController extends Controller
     {
         $solicitud->delete();
         return redirect()->route('solicitudes.index')->with('success', 'Solicitud eliminada correctamente.');
+    }
+
+    /**
+     * Eliminar una evidencia específica de la solicitud
+     */
+    public function eliminarEvidencia(Request $request, Solicitud $solicitud)
+    {
+        if (Auth::id() !== $solicitud->user_id) {
+            abort(403, 'No tienes permisos para editar esta solicitud.');
+        }
+        
+        $indice = $request->input('indice');
+        $solicitud->eliminarEvidencia($indice);
+        
+        return response()->json(['success' => true, 'message' => 'Evidencia eliminada correctamente']);
     }
 }

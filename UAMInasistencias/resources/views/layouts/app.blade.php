@@ -10,7 +10,7 @@
         <meta name="author" content="Scrum masters">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <title>{{ config('app.name', 'Sistemas de Inasistencias - UAM') }}</title>
+        <title>UAM - Sistema de Inasistencias</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -19,13 +19,13 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="bg-gray-900 text-gray-100 min-h-screen">
-        <div class="font-sans antialiased min-h-screen bg-gray-900">
+    <body class="bg-gray-100 text-gray-900 min-h-screen">
+        <div class="font-sans antialiased min-h-screen bg-gray-100">
             @include('layouts.navigation')
 
             <!-- Page Heading -->
             @isset($header)
-                <header class="bg-gray-900 border-b border-gray-800 shadow-lg">
+                <header class="bg-white border-b border-gray-200 shadow-sm">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>

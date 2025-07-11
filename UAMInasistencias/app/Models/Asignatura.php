@@ -13,7 +13,9 @@ class Asignatura extends Model
 
     protected $fillable = [
         'nombre',
+        'codigo',
         'profesor_id',
+        'horario',
     ];
 
     public function profesor(): BelongsTo

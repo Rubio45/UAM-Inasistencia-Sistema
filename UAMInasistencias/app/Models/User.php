@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'rol',
     ];
 
     /**
@@ -95,20 +96,5 @@ class User extends Authenticatable
         return $this->secretariaAcademica()->exists();
     }
 
-    /**
-     * Obtener el rol del usuario
-     */
-    public function getRolAttribute(): string
-    {
-        if ($this->isEstudiante()) {
-            return 'estudiante';
-        }
-        if ($this->isProfesor()) {
-            return 'profesor';
-        }
-        if ($this->isSecretariaAcademica()) {
-            return 'secretaria_academica';
-        }
-        return 'sin_rol';
-    }
+
 }

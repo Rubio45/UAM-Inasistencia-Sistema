@@ -56,9 +56,19 @@
                                     class="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 shadow-sm focus:border-cyan-500 focus:ring-cyan-500"></textarea>
                             </div>
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700">Evidencia (PDF o imagen)</label>
-                                <input type="file" name="evidencia" accept=".pdf,image/*"
-                                    class="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 shadow-sm focus:border-cyan-500 focus:ring-cyan-500">
+                                <label class="block text-sm font-medium text-gray-700">Evidencias (PDF o imágenes)</label>
+                                <div class="mt-1">
+                                    <input type="file" name="evidencias[]" accept=".pdf,image/*" multiple
+                                        class="block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 shadow-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                        id="evidencias-input">
+                                    <p class="mt-1 text-sm text-gray-500">Puedes seleccionar múltiples archivos. Máximo 10MB por archivo.</p>
+                                </div>
+                                
+                                <!-- Vista previa de archivos seleccionados -->
+                                <div id="evidencias-preview" class="mt-4 space-y-2 hidden">
+                                    <h4 class="text-sm font-medium text-gray-700">Archivos seleccionados:</h4>
+                                    <div id="evidencias-list" class="space-y-2"></div>
+                                </div>
                             </div>
                         </div>
                         <div class="mt-6 flex justify-end">
@@ -77,7 +87,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const profesorSelect = document.getElementById('profesor_id');
     const asignaturaSelect = document.getElementById('asignatura_id');
     const allOptions = Array.from(asignaturaSelect.options);
+    const evidenciasInput = document.getElementById('evidencias-input');
+    const evidenciasPreview = document.getElementById('evidencias-preview');
+    const evidenciasList = document.getElementById('evidencias-list');
 
+    // Manejo de selección de profesor y asignatura
     profesorSelect.addEventListener('change', function () {
         const profesorId = this.value;
         asignaturaSelect.innerHTML = '';
@@ -90,6 +104,57 @@ document.addEventListener('DOMContentLoaded', function () {
                 asignaturaSelect.appendChild(option.cloneNode(true));
             }
         });
+    });
+
+    // Manejo de vista previa de evidencias
+    evidenciasInput.addEventListener('change', function() {
+        const files = Array.from(this.files);
+        
+        if (files.length > 0) {
+            evidenciasPreview.classList.remove('hidden');
+            evidenciasList.innerHTML = '';
+            
+            files.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg border';
+                
+                const fileInfo = document.createElement('div');
+                fileInfo.className = 'flex items-center space-x-3';
+                
+                // Icono según tipo de archivo
+                const icon = document.createElement('div');
+                if (file.type.startsWith('image/')) {
+                    icon.innerHTML = '<svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>';
+                } else {
+                    icon.innerHTML = '<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>';
+                }
+                
+                const fileDetails = document.createElement('div');
+                fileDetails.innerHTML = `
+                    <div class="text-sm font-medium text-gray-900">${file.name}</div>
+                    <div class="text-sm text-gray-500">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                `;
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'text-red-500 hover:text-red-700';
+                removeBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+                removeBtn.onclick = function() {
+                    fileItem.remove();
+                    if (evidenciasList.children.length === 0) {
+                        evidenciasPreview.classList.add('hidden');
+                    }
+                };
+                
+                fileInfo.appendChild(icon);
+                fileInfo.appendChild(fileDetails);
+                fileItem.appendChild(fileInfo);
+                fileItem.appendChild(removeBtn);
+                evidenciasList.appendChild(fileItem);
+            });
+        } else {
+            evidenciasPreview.classList.add('hidden');
+        }
     });
 });
 </script>

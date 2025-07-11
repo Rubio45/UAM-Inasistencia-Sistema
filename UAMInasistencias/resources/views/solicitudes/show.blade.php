@@ -54,11 +54,27 @@
                             <dt class="text-sm font-medium text-gray-500">Comentario:</dt>
                             <dd class="text-sm text-gray-900">{{ $solicitud->comentario }}</dd>
                         </div>
-                        @if($solicitud->evidencia)
+                        @if(count($solicitud->evidencias) > 0)
                         <div>
-                            <dt class="text-sm font-medium text-gray-500">Evidencia:</dt>
+                            <dt class="text-sm font-medium text-gray-500">Evidencias:</dt>
                             <dd class="text-sm">
-                                <a href="{{ asset('storage/' . $solicitud->evidencia) }}" target="_blank" class="text-cyan-700 hover:underline">Ver evidencia</a>
+                                <div class="space-y-2">
+                                    @foreach($solicitud->evidencias as $index => $evidencia)
+                                    <div class="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
+                                        @if(pathinfo($evidencia, PATHINFO_EXTENSION) === 'pdf')
+                                            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                            </svg>
+                                        @else
+                                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
+                                        @endif
+                                        <span class="text-gray-700">{{ basename($evidencia) }}</span>
+                                        <a href="{{ asset('storage/' . $evidencia) }}" target="_blank" class="text-cyan-700 hover:underline">Ver archivo</a>
+                                    </div>
+                                    @endforeach
+                                </div>
                             </dd>
                         </div>
                         @endif
@@ -66,6 +82,14 @@
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Resolución:</dt>
                             <dd class="text-sm text-gray-900">{{ $solicitud->resolucion }}</dd>
+                        </div>
+                        @endif
+                        @if($solicitud->comentario_secretaria)
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Comentario de Secretaría:</dt>
+                            <dd class="text-sm text-gray-900 bg-blue-50 p-3 rounded-lg border-l-4 border-blue-400">
+                                {{ $solicitud->comentario_secretaria }}
+                            </dd>
                         </div>
                         @endif
                     </dl>

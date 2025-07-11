@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,6 +28,17 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+
+        // Redirigir según el rol del usuario
+        $user = Auth::user();
+        
+        if ($user->profesor) {
+            return redirect()->intended(route('profesor.dashboard', absolute: false));
+        }
+        
+        if ($user->secretariaAcademica) {
+            return redirect()->intended(route('secretaria.dashboard', absolute: false));
+        }
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

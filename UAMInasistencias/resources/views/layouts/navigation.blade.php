@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-gray-900 border-b border-gray-700">
+<nav x-data="{ open: false }" class="bg-white border-b border-gray-200 shadow-sm">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -12,13 +12,39 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-gray-300 hover:text-white">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
                     @auth
-                        @if(Auth::user()->rol !== 'sin_rol')
-                            <x-nav-link :href="route('solicitudes.index')" :active="request()->routeIs('solicitudes.*')" class="text-gray-300 hover:text-white">
+                        @if(Auth::user()->rol !== 'secretaria_academica')
+                            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-gray-700 hover:text-gray-900">
+                                {{ __('Panel Principal') }}
+                            </x-nav-link>
+                        @endif
+                        
+                        @if(Auth::user()->rol !== 'sin_rol' && Auth::user()->rol !== 'secretaria_academica')
+                            <x-nav-link :href="route('solicitudes.index')" :active="request()->routeIs('solicitudes.*')" class="text-gray-700 hover:text-gray-900">
                                 {{ __('Solicitudes') }}
+                            </x-nav-link>
+                        @endif
+                        
+                        <!-- Enlaces de Profesor -->
+                        @if(Auth::user()->rol === 'profesor')
+                            <x-nav-link :href="route('profesor.dashboard')" :active="request()->routeIs('profesor.dashboard')" class="text-gray-700 hover:text-gray-900">
+                                {{ __('Panel Profesor') }}
+                            </x-nav-link>
+                        @endif
+                        
+                        <!-- Enlaces de Secretaria -->
+                        @if(Auth::user()->rol === 'secretaria_academica')
+                            <x-nav-link :href="route('secretaria.dashboard')" :active="request()->routeIs('secretaria.dashboard')" class="text-gray-700 hover:text-gray-900">
+                                {{ __('Panel Secretaria') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('secretaria.profesores.index')" :active="request()->routeIs('secretaria.profesores.*')" class="text-gray-700 hover:text-gray-900">
+                                {{ __('Profesores') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('secretaria.clases.index')" :active="request()->routeIs('secretaria.clases.*')" class="text-gray-700 hover:text-gray-900">
+                                {{ __('Clases') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('secretaria.solicitudes.index')" :active="request()->routeIs('secretaria.solicitudes.*')" class="text-gray-700 hover:text-gray-900">
+                                {{ __('Gestión Solicitudes') }}
                             </x-nav-link>
                         @endif
                     @endauth
@@ -33,7 +59,17 @@
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-cyan-700 hover:bg-cyan-600 focus:outline-none transition ease-in-out duration-150">
                             <div>{{ Auth::user()->name }}</div>
-                            <div class="ms-2 text-xs text-cyan-200">{{ ucfirst(Auth::user()->rol) }}</div>
+                            <div class="ms-2 text-xs text-cyan-200">
+                                @if(Auth::user()->rol === 'estudiante')
+                                    Estudiante
+                                @elseif(Auth::user()->rol === 'profesor')
+                                    Profesor
+                                @elseif(Auth::user()->rol === 'secretaria_academica')
+                                    Secretaría Académica
+                                @else
+                                    Usuario
+                                @endif
+                            </div>
 
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -45,7 +81,7 @@
 
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')" class="text-gray-700 hover:bg-gray-100">
-                            {{ __('Profile') }}
+                            {{ __('Perfil') }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -56,7 +92,7 @@
                                     onclick="event.preventDefault();
                                                 this.closest('form').submit();"
                                     class="text-gray-700 hover:bg-gray-100">
-                                {{ __('Log Out') }}
+                                {{ __('Cerrar Sesión') }}
                             </x-dropdown-link>
                         </form>
                     </x-slot>
@@ -65,7 +101,7 @@
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-300 hover:bg-gray-800 focus:outline-none focus:bg-gray-800 focus:text-gray-300 transition duration-150 ease-in-out">
+                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -76,31 +112,67 @@
     </div>
 
     <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-gray-900">
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-white border-t border-gray-200">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-gray-300 hover:text-white">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
             @auth
-                @if(Auth::user()->rol !== 'sin_rol')
-                    <x-responsive-nav-link :href="route('solicitudes.index')" :active="request()->routeIs('solicitudes.*')" class="text-gray-300 hover:text-white">
+                @if(Auth::user()->rol !== 'secretaria_academica')
+                    <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-gray-700 hover:text-gray-900">
+                        {{ __('Panel Principal') }}
+                    </x-responsive-nav-link>
+                @endif
+                
+                @if(Auth::user()->rol !== 'sin_rol' && Auth::user()->rol !== 'secretaria_academica')
+                    <x-responsive-nav-link :href="route('solicitudes.index')" :active="request()->routeIs('solicitudes.*')" class="text-gray-700 hover:text-gray-900">
                         {{ __('Solicitudes') }}
+                    </x-responsive-nav-link>
+                @endif
+                
+                <!-- Enlaces de Profesor (Responsive) -->
+                @if(Auth::user()->rol === 'profesor')
+                    <x-responsive-nav-link :href="route('profesor.dashboard')" :active="request()->routeIs('profesor.dashboard')" class="text-gray-700 hover:text-gray-900">
+                        {{ __('Panel Profesor') }}
+                    </x-responsive-nav-link>
+                @endif
+                
+                <!-- Enlaces de Secretaria (Responsive) -->
+                @if(Auth::user()->rol === 'secretaria_academica')
+                    <x-responsive-nav-link :href="route('secretaria.dashboard')" :active="request()->routeIs('secretaria.dashboard')" class="text-gray-700 hover:text-gray-900">
+                        {{ __('Panel Secretaria') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('secretaria.profesores.index')" :active="request()->routeIs('secretaria.profesores.*')" class="text-gray-700 hover:text-gray-900">
+                        {{ __('Profesores') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('secretaria.clases.index')" :active="request()->routeIs('secretaria.clases.*')" class="text-gray-700 hover:text-gray-900">
+                        {{ __('Clases') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('secretaria.solicitudes.index')" :active="request()->routeIs('secretaria.solicitudes.*')" class="text-gray-700 hover:text-gray-900">
+                        {{ __('Gestión Solicitudes') }}
                     </x-responsive-nav-link>
                 @endif
             @endauth
         </div>
 
         <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-700">
+        <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-300">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-400">{{ Auth::user()->email }}</div>
-                <div class="font-medium text-sm text-cyan-400">{{ ucfirst(Auth::user()->rol) }}</div>
+                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
+                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                <div class="font-medium text-sm text-cyan-600">
+                    @if(Auth::user()->rol === 'estudiante')
+                        Estudiante
+                    @elseif(Auth::user()->rol === 'profesor')
+                        Profesor
+                    @elseif(Auth::user()->rol === 'secretaria_academica')
+                        Secretaría Académica
+                    @else
+                        Usuario
+                    @endif
+                </div>
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')" class="text-gray-300 hover:text-white">
-                    {{ __('Profile') }}
+                <x-responsive-nav-link :href="route('profile.edit')" class="text-gray-700 hover:text-gray-900">
+                    {{ __('Perfil') }}
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->
@@ -110,8 +182,8 @@
                     <x-responsive-nav-link :href="route('logout')"
                             onclick="event.preventDefault();
                                         this.closest('form').submit();"
-                            class="text-gray-300 hover:text-white">
-                        {{ __('Log Out') }}
+                            class="text-gray-700 hover:text-gray-900">
+                        {{ __('Cerrar Sesión') }}
                     </x-responsive-nav-link>
                 </form>
             </div>
